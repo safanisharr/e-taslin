@@ -8,13 +8,35 @@ const pelanggaranRoutes = require('./routes/pelanggaran');
 
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://e-sikap.vercel.app',
+  /\.vercel\.app$/  // izinkan semua subdomain vercel
+];
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://e-sikap.vercel.app' // ← ganti dengan URL Vercel kamu yang asli
-  ],
-  credentials: true
+  origin: function (origin, callback) {
+    // Izinkan request tanpa origin (curl, Postman, dll)
+    if (!origin) return callback(null, true);
+
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed instanceof RegExp) return allowed.test(origin);
+      return allowed === origin;
+    });
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS tidak diizinkan: ' + origin));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Penting: handle preflight request
+app.options('*', cors());
 
 app.use(express.json());
 
