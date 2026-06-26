@@ -8,7 +8,14 @@ const pelanggaranRoutes = require('./routes/pelanggaran');
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://e-sikap.vercel.app' // ← ganti dengan URL Vercel kamu yang asli
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
